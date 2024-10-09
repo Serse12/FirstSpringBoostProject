@@ -11,4 +11,9 @@ public class TestController {
     public String hello(){
         return "Hello World!!";
     }
+
+    @GetMapping(value="/francy")
+    public String test(){
+        return "Francy è molto bellissima";
+    }
 }

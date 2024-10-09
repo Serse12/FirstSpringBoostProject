@@ -1,0 +1,950 @@
+openapi: 3.0.3
+info:
+  title: Backend TeamUpEsports
+  description: |
+    'Prova di integrazione OAS  Per il backend di TeamUpEsports'
+  termsOfService: https://www.iubenda.com/privacy-policy/76107461
+  contact:
+    name: Charos S.R.L.
+    url: https://teamupesports.com/
+    email: charossrl@gmail.com
+  license:
+    name: Nessuna per il momento
+    url: https://giuventuribelle.it
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080/
+tags:
+  - name: Announce
+    description: >-
+      Ads produced by teams to seek players willing to join the Team for a given
+      game.
+  - name: Badge
+    description: >-
+      The badges obtained by a player in correspondence with obtaining a given
+      achivement.
+  - name: Game
+    description: Games available on the system.
+  - name: Platform
+    description: Platforms avaulable on the system (PC, PS4, Xbox360, etc.).
+  - name: Proposal
+    description: Requests made by useres to join a team after considering an Announce.
+  - name: Team
+    description: Group of users.
+  - name: User
+    description: People on the system.
+components:
+  schemas:
+    User:
+      description: People on the system.
+      type: object
+      properties:
+        userID:
+          description: ID of the user.
+          type: integer
+        email:
+          description: email of the user.
+          type: string
+        username:
+          description: username of the user.
+          type: string
+        password:
+          description: password of the user.
+          type: string
+        decription:
+          description: description of the user.
+          type: string
+        utilLink:
+          description: util link of the user.
+          type: string
+        teams:
+          description: teams created or joined by the user.
+          type: array
+          items:
+            $ref: '#/components/schemas/Team'
+    Team:
+      description: Group of users.
+      type: object
+      properties:
+        teamID:
+          description: ID of the team.
+          type: integer
+        logoUrl:
+          description: URL of the Logo.
+          type: string
+        name:
+          description: name of the team.
+          type: string
+        description:
+          description: description of the team.
+          type: string
+        utilLink:
+          description: util link of the team.
+          type: string
+        owner:
+          $ref: '#/components/schemas/User'
+        games:
+          description: games played by the team.
+          type: array
+          items:
+            $ref: '#/components/schemas/Game'
+        partecipants:
+          description: users that joined the team.
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    Game:
+      description: Games available on the system.
+      type: object
+      properties:
+        gameID:
+          description: ID of the game.
+          type: integer
+        name:
+          description: name of the game.
+          type: string
+        platforms:
+          description: platforms avable for the game.
+          type: array
+          items:
+            $ref: '#/components/schemas/Platform'
+    Platform:
+      description: Platforms avaulable on the system (PC, PS4, Xbox360, etc.).
+      type: object
+      properties:
+        platformID:
+          description: ID of the platform.
+          type: integer
+        name:
+          description: name of the platform.
+          type: string
+    Proposal:
+      description: Requests made by useres to join a team after considering an Announce.
+      type: object
+      properties:
+        proposalID:
+          description: ID of the proposal.
+          type: integer
+        user:
+          $ref: '#/components/schemas/User'
+        team:
+          $ref: '#/components/schemas/Team'
+        description:
+          description: description of the proposal.
+          type: string
+    Announce:
+      description: >-
+        Ads produced by teams to seek players willing to join the Team for a
+        given game.
+      type: object
+      properties:
+        proposalID:
+          description: ID of the proposal.
+          type: integer
+        publisher:
+          $ref: '#/components/schemas/User'
+        team:
+          $ref: '#/components/schemas/Team'
+        description:
+          description: description of the proposal.
+          type: string
+    Badge:
+      description: >-
+        The badges obtained by a player in correspondence with obtaining a given
+        achivement.
+      type: object
+      properties:
+        badgelID:
+          description: ID of the badge.
+          type: integer
+        name:
+          description: name of the badge.
+          type: string
+        description:
+          description: description of the badge.
+          type: string
+        badgeImageURL:
+          description: URL of the image of a given badge.
+          type: string
+    UserRegisterForm:
+      description: Form for user registration.
+      type: object
+      properties:
+        email:
+          description: E-mail of the user.
+          type: integer
+        username:
+          description: Username of the user.
+          type: string
+        description:
+          description: Description of the user, a short bio.
+          type: string
+        password:
+          description: Password of the user.
+          type: string
+        utilLink:
+          description: util link of the user.
+          type: string
+    Feedback:
+      description: Feedback of users.
+      type: object
+      properties:
+        content:
+          description: content of the feedback
+          type: string
+
+paths:
+
+  /api/v1/users/:
+    get:
+      tags:
+        - user
+      summary: Returns all the users.
+      description: Returns all the userse.
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: User found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          description: Page Not Found.
+          content: {}
+    post:
+      tags:
+        - user
+      summary: Create user.
+      description: Takes a JSON in body according to the UserRegisterForm schema.
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterForm'
+      responses:
+        '200':
+          description: User found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+
+  /api/v1/users/{userId}:
+    get:
+      tags:
+        - user
+      summary: Returns all the info about a user.
+      description: Returns all the info about a user given his ID.
+      operationId: getUserById
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Page Not Found.
+          content: {}
+    put:
+      tags:
+        - user
+      summary: Modify a User.
+      description: Modify a user given his ID.
+      operationId: modifyUserById
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Page Not Found.
+          content: {}
+  /api/v1/users/{username}:
+    get:
+      tags:
+        - user
+      summary: Returns the Id of a user.
+      description: Returns th Id of a user given the username.
+      operationId: getUserByUsername
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User found.
+          content:
+            application/json:
+              schema:
+                type: integer
+        '404':
+          description: Page Not Found.
+          content: {}
+  /api/v1/users/{userId}/teams:
+    get:
+      tags:
+        - user
+      summary: Returns all the teams of a user.
+      description: Returns all the teams that the player have either joined or created.
+      operationId: getTeamsOfUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          description: Page Not Found.
+          content: {}
+  /api/v1/users/{userId}/badges:
+    get:
+      tags:
+        - user
+      summary: Returns all the badges of a user.
+      description: Returns all the badges that the player or the team have obtained.
+      operationId: getBadgesOfUser
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Badge'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+
+  /api/v1/teams/:
+    get:
+      tags:
+        - team
+      summary: Returns all the teams.
+      description: Returns all the teams.
+      operationId: getAllTeams
+      responses:
+        '200':
+          description: Teams found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Team'
+        '404':
+          description: Page Not Found.
+          content: {}
+    post:
+      tags:
+        - team
+      summary: Create team.
+      description: Takes a JSON in body according to the Team schema.
+      operationId: createTeam
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+      responses:
+        '200':
+          description: User found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+    put:
+      tags:
+        - team
+      summary: Modifies team.
+      description: Takes a JSON in body according to the Team schema and modifies it.
+      operationId: modifyTeam
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Team'
+      responses:
+        '200':
+          description: User found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+  /api/v1/teams/{name}:
+    get:
+      tags:
+        - team
+      summary: Returns the Id of a team.
+      description: Returns th Id of a team given the name.
+      operationId: getTeamByName
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Team found.
+          content:
+            application/json:
+              schema:
+                type: integer
+        '404':
+          description: Page Not Found.
+          content: {}
+
+
+  /api/v1/teams/{teamId}:
+    get:
+      tags:
+        - team
+      summary: Returns a team.
+      description: Returns the team specified by de teamId.
+      operationId: getTeamById
+
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: Teams found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+    delete:
+      tags:
+        - team
+      summary: Returns the Id of a team.
+      description: Returns th Id of a team given the name.
+      operationId: deleteTeamById
+
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: Team found.
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: Page Not Found.
+          content: {}
+
+
+  /api/v1/teams/{teamId}/partecipants:
+    get:
+      tags:
+        - team
+      summary: Returns partecipants of a team.
+      description: Returns the partecipants of a team specified by de teamId.
+      operationId: getPartecipantsInTeamById
+
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: Teams found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+  /api/v1/teams/{teamId}/partecipants/{userId}:
+    get:
+      tags:
+        - team
+      summary: Kick a plyer out of a team.
+      description: Kick a plyer out of a team specified by de teamId and userId.
+      operationId: deletePartecipantInTeamById
+
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: Teams found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+  /api/v1/teams/{teamId}/games:
+    get:
+      tags:
+        - team
+      summary: Returns games of a team.
+      description: Returns the games of a team specified by de teamId.
+      operationId: getGamesInTeamById
+
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: Teams found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Game'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+
+  /api/v1/teams/{teamId}/badges:
+    get:
+      tags:
+        - team
+      summary: Returns badges of a team.
+      description: Returns the badges of a team specified by de teamId.
+      operationId: getBadgesInTeamById
+
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: Badges found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Badge'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+  /api/v1/proposals/:
+    get:
+      tags:
+        - proposal
+      summary: Returns all proposals.
+      description: Returns all proposals.
+      operationId: getAllProposals
+
+      responses:
+        '200':
+          description: Proposal found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Proposal'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+    post:
+      tags:
+        - proposal
+      summary: Create proposal.
+      description: Create proposal by the JSON in body request respect to the Proposal schema.
+      operationId: createProposal
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Proposal'
+
+
+      responses:
+        '200':
+          description: Proposal found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proposal'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+
+
+
+  /api/v1/proposals/{proposalId}:
+    get:
+      tags:
+        - proposal
+      summary: Returns a proposal.
+      description: Returns a proposal given his Id.
+      operationId: getProposalById
+
+      parameters:
+        - name: proposalId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: Proposal found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proposal'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+    delete:
+      tags:
+        - proposal
+      summary: Deletes a proposal.
+      description: Deletes a proposal given his Id.
+      operationId: deleteProposalById
+
+      parameters:
+        - name: proposalId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: Proposal found.
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: Page Not Found.
+          content: {}
+
+    put:
+      tags:
+        - proposal
+      summary: Modifies a proposal.
+      description: Modifies a proposal by the JSON in body request respect to the Proposal schema.
+      operationId: modifyProposal
+
+      parameters:
+        - name: proposalId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Proposal'
+
+
+      responses:
+        '200':
+          description: Proposal found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proposal'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+
+
+
+  /api/v1/proposals/team/{teamId}:
+    get:
+      tags:
+        - proposal
+      summary: Returns proposals of a give team.
+      description: Returns proposals of a give team by his Id.
+      operationId: getProposalsOfTeamById
+
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: Teams found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Proposal'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+
+  /api/v1/announces:
+    get:
+      tags:
+        - announce
+      summary: Returns all the announces.
+      description: Returns all the announces.
+      operationId: getAllAnnounces
+
+      responses:
+        '200':
+          description: Announce found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Announce'
+        '404':
+          description: Page Not Found.
+          content: {}
+    post:
+      tags:
+        - announce
+      summary: Create an announce.
+      description: Create an announce by the JSON in body request respect to the Announce schema.
+      operationId: createAnnounce
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Announce'
+
+
+      responses:
+        '200':
+          description: Announce created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announce'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+  /api/v1/announces/{announceId}:
+    get:
+      tags:
+        - announce
+      summary: Returns an announce.
+      description: Returns an announce by his Id.
+      operationId: getAnnounceById
+
+      parameters:
+        - name: announceId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: Announce found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proposal'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+    put:
+      tags:
+        - announce
+      summary: Modifies an announce.
+      description: Modifies an announce by his Id.
+      operationId: modifyAnnounceById
+
+      parameters:
+        - name: announceId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Announce'
+
+      responses:
+        '200':
+          description: Announce found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proposal'
+        '404':
+          description: Page Not Found.
+          content: {}
+
+
+    delete:
+      tags:
+        - announce
+      summary: Deletes an announce.
+      description: Deletes an announce by his Id.
+      operationId: deleteAnnounceById
+
+      parameters:
+        - name: announceId
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: Announce found.
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: Page Not Found.
+          content: {}
+
+
+
+  /api/v1/feedback:
+    post:
+      tags:
+        - feedback
+      summary: Create a feedback.
+      description: Create a feedback.
+      operationId: createFeedback
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Feedback'
+
+
+      responses:
+        '200':
+          description: Feedback created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feedback'
+        '404':
+          description: Page Not Found.
+          content: {}
+
